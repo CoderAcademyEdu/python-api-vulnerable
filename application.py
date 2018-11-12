@@ -6,6 +6,7 @@ from playhouse.shortcuts import model_to_dict
 import psycopg2
 import logging
 import os
+from operator import _compare_digest as constant_time_compare
 
 # Log the SQL
 logger = logging.getLogger('peewee')
@@ -76,7 +77,7 @@ def before_request():
             user = cursor.fetchone()
             user_id = user[0]
             user_password = user[2]
-            if password == user_password:
+            if constant_time_compare(password, user_password):
                 g.user_id = user_id
             application.logger.info('Found user: ', g.user_id)
     except:
