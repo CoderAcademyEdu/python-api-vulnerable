@@ -72,13 +72,12 @@ def before_request():
         if request.path != '/':
             username = request.args.get('username')
             password = request.args.get('password')
-            cursor = db.execute_sql("select * from user where username='" + username + "'")
-            user = cursor.fetchone()
-            user_id = user[0]
-            user_password = user[2]
+            user = User.get(username=username)
+            user_id = user.id
+            user_password = user.password
             if password == user_password:
                 g.user_id = user_id
-            application.logger.info('Found user: ', g.user_id)
+            application.logger.info('Found user: %s', g.user_id)
     except:
         abort(401)
 
