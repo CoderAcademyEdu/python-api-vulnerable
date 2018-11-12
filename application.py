@@ -37,7 +37,7 @@ db.connect()
 db.create_tables([Task, User])
 
 # Create an admin account
-User.get_or_create(username='admin', password='admin')
+User.get_or_create(username='admin', password='Doggo123!')
 
 # Lookup task by ID
 def get_task_by_id(task_id):
