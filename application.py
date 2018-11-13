@@ -42,7 +42,7 @@ User.get_or_create(username='admin', password='admin')
 # Lookup task by ID
 def get_task_by_id(task_id):
     try:
-        return Task.get(id=task_id)
+        return Task.get(id=task_id, user_id=g.user_id)
     except:
         abort(404, message='Task not found')
 
