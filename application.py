@@ -6,6 +6,7 @@ from playhouse.shortcuts import model_to_dict
 import psycopg2
 import logging
 import os
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # Log the SQL
 logger = logging.getLogger('peewee')
@@ -37,7 +38,7 @@ db.connect()
 db.create_tables([Task, User])
 
 # Create an admin account
-User.get_or_create(username='admin', password='admin')
+User.get_or_create(username='admin', defaults={'password': generate_password_hash('admin')})
 
 # Lookup task by ID
 def get_task_by_id(task_id):
@@ -72,13 +73,10 @@ def before_request():
         if request.path != '/':
             username = request.args.get('username')
             password = request.args.get('password')
-            cursor = db.execute_sql("select * from user where username='" + username + "'")
-            user = cursor.fetchone()
-            user_id = user[0]
-            user_password = user[2]
-            if password == user_password:
-                g.user_id = user_id
-            application.logger.info('Found user: ', g.user_id)
+            user = User.get(username=username)
+            if check_password_hash(user.password, password):
+                g.user_id = user.id
+            application.logger.info('Found user: %s', g.user_id)
     except:
         abort(401)
 
