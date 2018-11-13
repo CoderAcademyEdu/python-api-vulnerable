@@ -49,10 +49,12 @@ def get_task_by_id(task_id):
 # GET & POST /tasks
 class API_Tasks(Resource):
     def get(self):
+        application.logger.info("[User %s] Getting all tasks", g.user_id)
         tasks = Task.select().where(Task.user_id == g.user_id)
         return [model_to_dict(task) for task in tasks]
 
     def post(self):
+        application.logger.info("[User %s] Creating new task", g.user_id)
         if 'title' not in request.json.keys():
             abort(400, message='Please include a title')
         task = Task.create(title=request.json['title'], complete=False, user_id=g.user_id)
@@ -61,6 +63,7 @@ class API_Tasks(Resource):
 # GET, PUT, DELETE /tasks/:id
 class API_Task(Resource):
     def get(self, task_id):
+        application.logger.info("[User %s] looking up task %s", g.user_id, task_id)
         task = get_task_by_id(task_id)
         application.logger.debug(task)
         return model_to_dict(task)
@@ -72,14 +75,16 @@ def before_request():
         if request.path != '/':
             username = request.args.get('username')
             password = request.args.get('password')
+            application.logger.info("Attempting login username: %s", username)
             cursor = db.execute_sql("select * from user where username='" + username + "'")
             user = cursor.fetchone()
             user_id = user[0]
             user_password = user[2]
             if password == user_password:
                 g.user_id = user_id
-            application.logger.info('Found user: ', g.user_id)
+            application.logger.info("[User %s] Successfully logged in", g.user_id)
     except:
+        application.logger.info("Login failed")
         abort(401)
 
 @application.route('/')
