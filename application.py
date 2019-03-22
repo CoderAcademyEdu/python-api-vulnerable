@@ -6,7 +6,7 @@ from playhouse.shortcuts import model_to_dict
 import psycopg2
 import logging
 import os
-from operator import _compare_digest as constant_time_compare
+from werkzeug.security import safe_str_cmp
 
 # Log the SQL
 logger = logging.getLogger('peewee')
@@ -71,13 +71,14 @@ class API_Task(Resource):
 def before_request():
     try:
         if request.path != '/':
-            username = request.args.get('username')
-            password = request.args.get('password')
+            username = request.headers['username']
+            password = request.headers['password']
             cursor = db.execute_sql("select * from user where username='" + username + "'")
             user = cursor.fetchone()
+            print(user)
             user_id = user[0]
             user_password = user[2]
-            if constant_time_compare(password, user_password):
+            if safe_str_cmp(password, user_password):
                 g.user_id = user_id
             application.logger.info('Found user: ', g.user_id)
     except:
