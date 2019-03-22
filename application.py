@@ -38,7 +38,7 @@ db.connect()
 db.create_tables([Task, User])
 
 # Create an admin account
-User.get_or_create(username='admin', defaults={'password': generate_password_hash('admin')})
+User.get_or_create(username='admin1', defaults={'password': generate_password_hash('admin1')})
 
 # Lookup task by ID
 def get_task_by_id(task_id):
@@ -71,9 +71,10 @@ class API_Task(Resource):
 def before_request():
     try:
         if request.path != '/':
-            username = request.args.get('username')
-            password = request.args.get('password')
+            username = request.headers['username']
+            password = request.headers['password']
             user = User.get(username=username)
+            print(user.password)
             if check_password_hash(user.password, password):
                 g.user_id = user.id
             application.logger.info('Found user: %s', g.user_id)
