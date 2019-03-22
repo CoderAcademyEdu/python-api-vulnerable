@@ -70,8 +70,8 @@ class API_Task(Resource):
 def before_request():
     try:
         if request.path != '/':
-            username = request.args.get('username')
-            password = request.args.get('password')
+            username = request.headers['username']
+            password = request.headers['password']
             cursor = db.execute_sql("select * from user where username='" + username + "'")
             user = cursor.fetchone()
             user_id = user[0]
