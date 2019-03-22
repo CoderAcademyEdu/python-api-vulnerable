@@ -70,8 +70,8 @@ class API_Task(Resource):
 def before_request():
     try:
         if request.path != '/':
-            username = request.args.get('username')
-            password = request.args.get('password')
+            username = request.headers['username']
+            password = request.headers['password']
             user = User.get(username=username)
             user_id = user.id
             user_password = user.password
